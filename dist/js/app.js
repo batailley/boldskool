@@ -21,13 +21,13 @@ var AdapterFactory = function () {
     _createClass(AdapterFactory, null, [{
         key: "createAdaptee",
         value: function createAdaptee(adapteeKey) {
-            this.adaptee = {};
+            this.adapter = {};
             if (adapteeKey === "one") {
-                this.adaptee = new oneAdaptee();
+                this.adapter = new oneAdaptee();
             } else if (adapteeKey === "two") {
-                this.adaptee = new twoAdaptee();
+                this.adapter = new twoAdaptee();
             }
-            return this.adaptee;
+            return this.adapter;
         }
     }]);
 

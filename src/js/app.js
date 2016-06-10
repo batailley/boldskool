@@ -1,5 +1,5 @@
 import { dependencie } from './app-dependencies/template';
-import { AdapterFactory } from './app-dependencies/Adapter';
+import { AdapterFactory } from './patterns/Adapter';
 class App {
     constructor(options = {}) {
         this.name = options.name || 'no name';

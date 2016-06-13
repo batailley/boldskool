@@ -159,4 +159,6 @@ var twoAdapter = function (_AdapterInterface2) {
     return twoAdapter;
 }(AdapterInterface);
 
+exports.default = twoAdapter;
+
 },{}]},{},[2])

@@ -9,12 +9,18 @@ export function adapterFactory (adapterKey) {
 }
 
 export default class AdapterInterface {
+    constructor(...args) {
+
+    }
+
     get(key) {
         throw new Error("please implement me");
     }
+
     set(key, value) {
         throw new Error("please implement me");
     }
+
 }
 
 export default class oneAdapter extends AdapterInterface {
@@ -25,12 +31,15 @@ export default class oneAdapter extends AdapterInterface {
     get(key) {
         console.info('get one from adapter', key);
     }
+
     set(key, value) {
         console.info('set one to adapter', key, value);
     }
+
 }
-class twoAdapter extends AdapterInterface {
+export default class twoAdapter extends AdapterInterface {
     constructor(...args) {
         super(...args);
     }
+
 }

@@ -1,15 +1,25 @@
-import { dependencie } from './app-dependencies/template';
-import { AdapterFactory } from './patterns/Adapter';
-class App {
+import { template } from './app-dependencies/template';
+import { adapterFactory } from './patterns/Adapter';
+
+export default class App {
     constructor(options = {}) {
         this.name = options.name || 'no name';
-    }
-    getName() {
-        //
-        return "Name: " + this.name;
+        template();
+        this.adapter = adapterFactory('one');
     }
 
+    init() {
+        this.getName();
+        this.adapter.set('key', 'example');
+    }
+
+    getName() {
+        return "The App Name is: " + this.name;
+    }
 }
 
-window.app = new App();
-window.AdapterFactory = AdapterFactory;
+window.app = new App({
+    name: "the demo app"
+});
+
+window.app.init();

@@ -1,14 +1,11 @@
-export default class AdapterFactory {
-
-    static createAdapter(adapterKey) {
-        this.adapter = {};
-        if (adapterKey === "one") {
-            this.adapter = new oneAdapter();
-        } else if (adapterKey === "two") {
-            this.adapter = new twoAdapter();
-        }
-        return this.adapter;
-    };
+export function adapterFactory (adapterKey) {
+    let adapter = {};
+    if (adapterKey === "one") {
+        adapter = new oneAdapter();
+    } else if (adapterKey === "two") {
+        adapter = new twoAdapter();
+    }
+    return adapter;
 }
 
 export default class AdapterInterface {
@@ -21,13 +18,19 @@ export default class AdapterInterface {
 }
 
 export default class oneAdapter extends AdapterInterface {
+    constructor(...args) {
+        super(...args);
+    }
+
     get(key) {
-        console.log('get one Ad');
+        console.info('get one from adapter', key);
     }
     set(key, value) {
-        console.log('set one Ad', key, value);
+        console.info('set one to adapter', key, value);
     }
 }
 class twoAdapter extends AdapterInterface {
-
+    constructor(...args) {
+        super(...args);
+    }
 }

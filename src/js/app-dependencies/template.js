@@ -1,3 +1,3 @@
-export default function template() {
-    console.log('the template_');
+export function template() {
+    console.info('_the template method has been called_');
 }

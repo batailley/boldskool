@@ -1,3 +1,4 @@
 # boldskool
-Not your average little boilerplate for multipage modern web app
-filled with templates of patterns and other useable bits
+Not your average little boilerplate for multiple page modern web app.
+_Because you can't always do s.p.a._
+I had to implement such pattern for my work at Display Interactive and finally decided to extract some solutions found to create a kind of boilerplate, and snippets repo.

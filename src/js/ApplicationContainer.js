@@ -1,50 +1,38 @@
-import {Event} from "./utils/event";
+import Observable from "./utils/Observable";
 import socketEvents from "./socketEvents";
 
-export default class ApplicationContainer {
-    constructor(data, utils, domModules, userManager) {
-        Event.mixin(this);
+export default class ApplicationContainer extends Observable {
+    constructor(data, utils, commonDomDependantModules) {
+        super();
+
         this.data = data;
         this.Util = utils;
-        this.domModules = domModules;
+        this.commonDomDependantModules = commonDomDependantModules;
 
-        if (userManager) {
-            this.userManager = userManager;
-            this.userManagerEventListenersMapper();
-        }
-        if (this.Util) {
-            this.initDomRelated();
-        }
         this.applicationEventsListeners();
         this.dependenciesDispatchMapper();
-        this.parts = [];
+        
+        this.deferToDomReady(this.initDomDependantModules());
+        
     }
 
-    configurationFlags = {
-        USER_PROFILE : 1
-    };
-
-    register(subApp) {
-        this.parts.push(subApp);
+    deferToDomReady(executor) {
+        if (document.readyState) {
+            executor();
+        } else {
+            document.addEventListener('DOMContentLoaded', () => { executor() }); 
+        }
     }
-    initDomRelated() {
+
+    initDomDependantModules() {
         let bodyElt = document.querySelector("body");
         if (!this.Util.Css.hasClass(bodyElt, 'standalone')) {
-            this.domModules.forEach(
+            this.commonDomDependantModules.forEach(
                 (m) => {
                     m.start(this);
                 }
             );
         }
-        if (this.data.get('forceFlightOff')) { this.dispatch('set-flight-off'); }
-
-        if (this.Util.Is.ie()) {
-            this.Util.Css.addClass(bodyElt, "ie");
-        } else {
-            this.Util.Css.addClass(bodyElt, "nonie");
-        }
- 
-        this.alertHeadphones();
     }
 
     //USER Manager setup & interface

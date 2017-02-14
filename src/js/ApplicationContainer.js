@@ -1,5 +1,4 @@
 import Observable from "./utils/Observable";
-import socketEvents from "./socketEvents";
 
 export default class ApplicationContainer extends Observable {
     constructor(data, utils, commonDomDependantModules) {
@@ -35,62 +34,6 @@ export default class ApplicationContainer extends Observable {
         }
     }
 
-    //USER Manager setup & interface
-    userManagerEventListenersMapper() {
-        this.userManager.getUserAndDependencies();
-        this.userManager.listen('user-ready', (user) => (this.setUser(user)));
-        this.userManager.listen('user-updated', (user) => (this.setUser(user)));
-        this.userManager.listen('bearer-updated', (bearer) => (this.setBearer(bearer)));
-        this.userManager.listen('travelClasses-ready', (classes) => (this.setTravelClasses(classes)));
-        this.userManager.listen('passengerTypes-ready', (types) => (this.setPassengerTypes(types)));
-    }
-
-    /**
-     *
-     * @param data object or formData
-     * @returns Promise
-     */
-    updateUser(data) {
-       return this.userManager.updateUser(data);
-    }
-    refreshUserAvatar() {
-        var avatars = document.querySelectorAll('.useravatar');
-        [].forEach.call(avatars, (a) => {
-            if (!this.hasConfig(this.configurationFlags.USER_PROFILE)) {
-                a.classList.add('no-profile');
-            }
-
-            if (this.currentUser.avatar_src !== "") {
-                a.style.backgroundImage = "url("+this.currentUser.avatar_src+")";
-            }
-            a.style.opacity = 1;
-        });
-    }
-
-    alertHeadphones() {
-        if (this.Util.Cookies.getCookie('alertHeadphones')) {
-            return;
-        }
-        let alert = document.querySelector('.alert-headphones-overlay');
-        if (alert) {
-            alert.style.display = 'block';
-            let closeButton = document.querySelector('.alert.alert-headphones button');
-            closeButton.addEventListener('click', () => {
-                alert.style.display = 'none';
-                this.Util.Cookies.setCookie('alertHeadphones', true, 1);
-            });
-        }
-    }
-    alertAuth() {
-        if (!this.hasConfig(this.configurationFlags.USER_PROFILE) || this.Util.Cookies.getCookie('alertAuth')) {
-            return;
-        }
-        let alert = document.querySelector('.alert.alert-auth');
-        if (alert) {
-            alert.style.display = 'block';
-            this.Util.Cookies.setCookie('alertAuth', true, 1);
-        }
-    }
     applicationEventsListeners() {
         this.listen('set-flight-on', () => {
             let bod = document.querySelector('body');
@@ -105,36 +48,7 @@ export default class ApplicationContainer extends Observable {
             this.dispatch('set-flight-off');
         })
     }
-    socketEventListenersMapper() {
-        this.socketManager.listen(socketEvents.FLIGHT_ERROR, (data) => {
-            this.dispatch('set-flight-off');
-        });
-        this.socketManager.listen(socketEvents.STATUS_BOARDING, (data) => {
-            this.dispatch('set-flight-off');
-        });
-        this.socketManager.listen(socketEvents.STATUS_TAXI_IN, (data) => {
-            this.dispatch('set-flight-off');
-        });
-        this.socketManager.listen(socketEvents.STATUS_ASCENT, (data) => {
-            this.fetchFlight();
-        });
-        this.socketManager.listen(socketEvents.STATUS_CRUISE, (data) => {
-            this.fetchFlight();
-        });
-        this.socketManager.listen(socketEvents.STATUS_DESCENT, (data) => {
-            this.fetchFlight();
-        });
-        this.socketManager.listen(socketEvents.STATUS_TAXI_OUT, (data) => {
-            this.dispatch('set-flight-off');
-        });
-        this.socketManager.listen(socketEvents.STATUS_DEPLANING, (data) => {
-            this.dispatch('set-flight-off');
-            this.flightData = null;
-        });
-        this.socketManager.listen(socketEvents.PUBLIC_ANNOUNCE, (data) => {
-            this.toggleAnnounce(data);
-        });
-    }
+
 
     //analyticsAdapter and interface
     statsEventListenersMapper() {
@@ -152,45 +66,6 @@ export default class ApplicationContainer extends Observable {
     }
 
 
-    //FlightManager setup and interface
-    flightManagerEventListenersMapper() {
-        this.flightManager.listen('trip-ready', () => {
-            this.flightData = this.flightManager.tripData;
-            this.dispatch('set-flight-on');
-            this.dispatch('flight-ready');
-        });
-        this.flightManager.listen('trip-updated', () => {
-            this.dispatch('flight-updated');
-            this.dispatch('set-flight-on');
-        });
-        this.flightManager.listen('trip-fetch-error', () => {
-                this.flightData = null;
-                this.dispatch('flight-error');
-                this.dispatch('set-flight-off');
-            }
-        );
-    }
-    fetchFlight(){
-        this.flightManager.fetch();
-    }
-    getFlight() {
-        return this.flightManager.tripData;
-    }
-
-    toggleAnnounce(calling) {
-        for (let i in this.parts) {
-            let part = this.parts[i];
-            if (part.toggleAnnounce != undefined && typeof part.toggleAnnounce === 'function') {
-                part.toggleAnnounce(calling);
-            }
-        }
-
-        var announce = document.getElementById('announce-overlay');
-        if (announce) {
-            announce.style.display = calling ? 'block' : 'none';
-        }
-    }
-
     //SETTERS
     setTranslations(data) {
         this.data.set('translations', data);
@@ -201,35 +76,15 @@ export default class ApplicationContainer extends Observable {
         this.statsEventListenersMapper();
         this.dispatch('stats-ready');
     }
-    setFlightManager(flightManager) {
-        this.flightManager = flightManager;
-        this.flightManagerEventListenersMapper();
-        this.fetchFlight();
-        this.dispatch('set-flight-on');
-    }
-    setSocketManager(socketManager) {
-        if (socketManager) {
-            this.socketManager = socketManager;
-            this.socketEventListenersMapper();
-            this.dispatch('socket-ready');
-        }
-    }
+    
     setUser(user) {
         this.currentUser = user;
-        this.refreshUserAvatar();
         this.dispatch('user-ready');
     }
     setBearer(bearer) {
         this.data.set('Bearer', bearer);
     }
-    setPassengerTypes(types) {
-        this.data.set('passengerTypes', types);
-        this.dispatch('passengerTypes-ready');
-    }
-    setTravelClasses(classes) {
-        this.data.set('travelClasses', classes);
-        this.dispatch('travelClasses-ready');
-    }
+
     // Dependencies management
     readyDependencies = [];
     dependenciesListeners = [];
@@ -290,11 +145,4 @@ export default class ApplicationContainer extends Observable {
         return locales[0];
     };
 
-    getPwdFromFile(fn) {
-        return configuration.prefix + md5(fn)
-    };
-
-    forceFlightError() {
-        this.flightManager.dispatch('trip-fetch-error');
-    }
 }

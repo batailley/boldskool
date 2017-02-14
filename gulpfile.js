@@ -6,6 +6,7 @@ var transform = require('vinyl-transform');
 var glob = require('glob');
 var webpack_stream = require('webpack-stream');
 var webpack2 = require('webpack');
+var named = require('vinyl-named');
 
 
 var vendors = [
@@ -15,14 +16,10 @@ var vendors = [
 ];
 
 
-var appDependencies = [
-    'Resources/public/js/utils/*.js',
-    'Resources/public/js/app.js'
-];
 
 var compile = function(entry, dest) {
     return gulp.src(entry)
-        //.pipe(named())
+        .pipe(named())
         .pipe(webpack_stream({
             cache: true,
             module: {
@@ -78,5 +75,5 @@ gulp.task('combine:vendors', [], function () {
 });
 
 gulp.task('build:app', function () {
-    return compile('./src/js/bootstrap.js', './Resources/public/js/dist/');
+    return compile('./src/js/app.js', './dist/');
 });

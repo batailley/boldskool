@@ -1,15 +1,14 @@
 import Observable from "./utils/Observable";
 
 export default class ApplicationContainer extends Observable {
-    constructor(data, utils, commonDomDependantModules) {
+    constructor(data, utils, dependencyManager) {
         super();
 
         this.data = data;
         this.Util = utils;
-        this.commonDomDependantModules = commonDomDependantModules;
+        this.dependencyManager = dependencyManager;
 
         this.applicationEventsListeners();
-        this.dependenciesDispatchMapper();
         
         this.deferToDomReady(this.initDomDependantModules());
         
@@ -32,6 +31,10 @@ export default class ApplicationContainer extends Observable {
                 }
             );
         }
+    }
+    
+    dependenciesListener(dependencies, callback, label) {
+        this.dependencyManager.dependenciesListener(dependencies, callback, label);
     }
 
     applicationEventsListeners() {
@@ -81,56 +84,7 @@ export default class ApplicationContainer extends Observable {
         this.currentUser = user;
         this.dispatch('user-ready');
     }
-    setBearer(bearer) {
-        this.data.set('Bearer', bearer);
-    }
-
-    // Dependencies management
-    readyDependencies = [];
-    dependenciesListeners = [];
-    dependenciesRef = ['translations', 'user', 'passengerTypes', 'travelClasses', 'stats'];
-    dependenciesListener(dependencies, callback, label) {
-        if (this.dependenciesAreReady(dependencies)){
-            callback();
-        } else {
-            this.dependenciesListeners.push({dependencies, callback, label});
-        }
-    }
-    dependenciesDispatchMapper() {
-        this.dependenciesRef.forEach(
-            (ref) => (this.listen(ref+'-ready', () => this.dispatch('dependency-ready', ref)))
-        );
-        this.listen('dependency-ready', (dependencyRef) => {
-            this.readyDependencies.push(dependencyRef);
-            this.dispatchDependencyReady();
-        })
-    }
-    dispatchDependencyReady() {
-        this.dependenciesListeners.forEach((waiter, index) => {
-            if (this.dependenciesAreReady(waiter.dependencies)) {
-                try {
-                    waiter.callback();
-                    this.dependenciesListeners.splice(index, 1);
-                } catch (e) {
-                    console.log('Waiter callback failed', waiter, e);
-                    throw e;
-                }
-            }
-        });
-    }
-    dependenciesAreReady(wanted) {
-        let need = [];
-        wanted.forEach((wanted_value) => {
-            if (!this.dependencyIsReady(wanted_value)) {
-                need.push(wanted_value);
-            }
-        });
-        return need.length === 0;
-    }
-    dependencyIsReady(ref) {
-        return this.readyDependencies.find((v) => (v === ref));
-    }
-
+    
     //
     hasConfig(flag) {
         return this.data.get('configurationMask') & flag;

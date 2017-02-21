@@ -2,7 +2,7 @@
   "name": "boldskool",
   "version": "1.0.0",
   "description": "not your average little multipage app boilerplate",
-  "main": "index.js",
+  "main": ".src/js/index.js",
   "dependencies": {
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-class-properties": "^6.22.0",
@@ -17,7 +17,6 @@
     "proptypes": "^0.14.4",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "vinyl-named": "^1.1.0",
     "vinyl-source-stream": "^1.1.0",
     "vinyl-transform": "^1.0.0",
     "webpack": "2.1",

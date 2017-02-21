@@ -1,20 +1,18 @@
-import {Css}  from "./utils/css";
-import {Dom}  from "./utils/dom";
 import {Collection, CachedCollection}  from "./utils/cached-collection";
-import {Dates}  from "./utils/dates";
-import {Obj}  from "./utils/object";
 import {Request}  from "./utils/request";
-import {Event} from "./utils/event";
-import {Cookies} from "./utils/cookies";
-import {Is} from "./utils/features";
 
 import BabelPolyfill from 'babel-polyfill';
 
-import ApplicationContainer from "./ApplicationContainer"
+import ApplicationContainer from "./ApplicationContainer";
+
+import DependencyManager from "./utils/DependencyManager";
+import dependenciesRef from '../conf/dependenciesReference.js';
+
+import utils from '../conf/utils.js';
 
 
 window.AppInitialiser = {
-    subApps : [],
+    subViews: [], 
     setSubView : function(subViewInitialiser) {
       if (this.appIsReady) {
           subViewInitialiser.start(window.App)
@@ -23,18 +21,7 @@ window.AppInitialiser = {
       } 
     },
     appIsReady: false,
-    utils : {
-        Css,
-        Dates,
-        Dom,
-        Obj,
-        Request,
-        Event,
-        Cookies,
-        Is,
-        Collection,
-        CachedCollection
-    },
+    utils : utils,
     setApplicationSettings: function (data) {
         Object.keys(applicationSettings).forEach((k) => {
             data.set(k, applicationSettings[k]);
@@ -46,7 +33,8 @@ window.AppInitialiser = {
         this.preApplication();
     },
     preApplication: function() {
-        this.setAppReady(new ApplicationContainer(this.data, this.utils, commonDomDependantModules));
+        let dependencyManager = new DependencyManager(dependenciesRef);
+        this.setAppReady(new ApplicationContainer(this.data, this.utils, dependencyManager));
     },
     setAppReady: function(App) {
         window.App = App;

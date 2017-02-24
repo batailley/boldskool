@@ -17,6 +17,8 @@
     "proptypes": "^0.14.4",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "standard": "^8.6.0",
+    "vinyl-named": "^1.1.0",
     "vinyl-source-stream": "^1.1.0",
     "vinyl-transform": "^1.0.0",
     "webpack": "2.1",

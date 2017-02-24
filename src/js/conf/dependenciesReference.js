@@ -1,7 +1,7 @@
 export const dependenciesReference = [
-    'translations', 
-    'user', 
-    'passengerTypes', 
-    'travelClasses', 
-    'stats'
-];
+  'translations',
+  'user',
+  'passengerTypes',
+  'travelClasses',
+  'stats'
+]

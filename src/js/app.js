@@ -47,6 +47,7 @@ window.AppInitialiser = {
     this.postApplication()
   },
   postApplication: () => {
+    console.log('everything is awesome')
   }
 }
 

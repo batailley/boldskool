@@ -1,0 +1,11 @@
+#one {
+  font-size: 12px;
+  display: flex;
+}
+.pareil {
+  font-weight:bold;
+}
+
+.paspareil .pareil {
+  color:red;
+}

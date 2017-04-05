@@ -36,7 +36,7 @@
     "webpack-dev-server": "2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel-register --require babel-polyfill --recursive ./tests/"
   },
   "repository": "git+https://github.com/batailley/boldskool.git",
   "author": "@batailley",

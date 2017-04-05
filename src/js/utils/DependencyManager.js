@@ -4,6 +4,7 @@ export default class DependencyManager extends Observable {
   constructor (dependenciesRef) {
     super()
     this.readyDependencies = []
+    this.failedDependencies = []
     this.dependenciesListeners = []
     this.dependenciesRef = dependenciesRef
     this.dependenciesDispatchMapper()

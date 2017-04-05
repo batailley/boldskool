@@ -2,9 +2,9 @@ import { expect } from 'chai'
 
 import DependencyManager from '../src/js/utils/DependencyManager'
 
-describe('First test', () => {
-  it('should calculate 1 + 1 correctly', () => {
-    const expectedResult = 2
+describe('DependencyManager Tests', () => {
+  it('DependencyManager should callback when dep is ready', () => {
+    let dpMan = new DependencyManager(['chaussette'])
 
     expect(1 + 1).to.equal(expectedResult)
   })

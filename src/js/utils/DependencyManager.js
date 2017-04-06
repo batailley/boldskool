@@ -7,6 +7,7 @@ export default class DependencyManager extends Observable {
     this.failedDependencies = []
     this.dependenciesListeners = []
     this.dependenciesRef = dependenciesRef
+    this.dependenciesStates = ['ready', 'pending', 'failed']
     this.dependenciesDispatchMapper()
   }
 
@@ -20,8 +21,15 @@ export default class DependencyManager extends Observable {
 
   dependenciesDispatchMapper () {
     this.dependenciesRef.forEach(
-            (ref) => (this.listen(ref + '-ready', () => this.dispatch('dependency-ready', ref)))
-        )
+        (ref) => {
+          this.dependenciesStates.forEach(
+            (state) => {
+              this.listen(ref + '-' + state, () => this.dispatch('dependency-' + state, ref))
+            }
+          )
+        }
+    )
+
     this.listen('dependency-ready', (dependencyRef) => {
       this.readyDependencies.push(dependencyRef)
       this.dispatchDependencyReady()

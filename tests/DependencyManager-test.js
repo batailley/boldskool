@@ -9,7 +9,7 @@ const expect = chai.expect
 import DependencyManager from '../src/js/utils/DependencyManager'
 
 describe('DependencyManager Tests', () => {
-  it('DependencyManager should callback when dep is ready', () => {
+  it('should callback when dep is ready', () => {
     let depReady = ''
     let depsReferences = ['salade', 'tomates', 'oignons']
     let dpMan = new DependencyManager(depsReferences)
@@ -19,6 +19,19 @@ describe('DependencyManager Tests', () => {
 
     dpMan.dispatch('tomates-ready')
 
+    expect(callback).to.have.been.called
+  })
+  it('should callback only when all deps are ready', () => {
+    let depReady = ''
+    let depsReferences = ['salade', 'tomates', 'oignons']
+    let dpMan = new DependencyManager(depsReferences)
+    let callback = sinon.spy()
+
+    dpMan.dependenciesListener(['tomates', 'salade'], callback)
+
+    dpMan.dispatch('tomates-ready')
+    expect(callback).have.not.been.called
+    dpMan.dispatch('salade-ready')
     expect(callback).to.have.been.called
   })
 })

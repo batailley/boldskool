@@ -5,13 +5,14 @@ export default class DependencyManager extends Observable {
     super()
     this.readyDependencies = []
     this.failedDependencies = []
+    this.pendingDependencies = []
     this.dependenciesListeners = []
     this.dependenciesRef = dependenciesRef
     this.dependenciesStates = ['ready', 'pending', 'failed']
     this.dependenciesDispatchMapper()
   }
 
-  dependenciesListener (dependencies, callback, label) {
+  dependenciesListener (dependencies, callbacks, label) {
     if (this.dependenciesAreReady(dependencies)) {
       callback()
     } else {
@@ -32,31 +33,54 @@ export default class DependencyManager extends Observable {
 
     this.listen('dependency-ready', (dependencyRef) => {
       this.readyDependencies.push(dependencyRef)
-      this.dispatchDependencyReady()
+      this.dispatchDependencyStateChange()
+    })
+
+    this.listen('dependency-failed', (dependencyRef) => {
+      this.failedDependencies.push(dependencyRef)
+      this.dispatchDependencyFailed()
+    })
+
+    this.listen('dependency-pending', (dependencyRef) => {
+      this.pendingDependencies.push(dependencyRef)
+      this.dispatchDependencyPending()
     })
   }
 
-  dispatchDependencyReady () {
-    this.dependenciesListeners.forEach((waiter, index) => {
-      if (this.dependenciesAreReady(waiter.dependencies)) {
-        try {
-          waiter.callback()
-          this.dependenciesListeners.splice(index, 1)
-        } catch (e) {
-          console.log('Waiter callback failed', waiter, e)
-          throw e
-        }
-      }
+  dispatchDependencyStateChange () {
+    this.dependenciesListeners.forEach((dependenciesWaiter, index) => {
+      if (this.dependenciesAreReady(dependenciesWaiter.dependencies)) {
+        dependenciesWaiter.callback()
+        this.dependenciesListeners.splice(index, 1)
+      } else 
     })
   }
 
-  dependenciesAreReady (wanted) {
-    let need = []
+  dependenciesState (wanted) {
+    let state = "";
     wanted.forEach((wantedValue) => {
+      /*
+let arr1 = ['f', 'p', 's'] //f
+let arr2 = ['s', 's', 's'] //s
+let arr3 = ['p', 's', 's'] //p
+let arr4 = ['f', 's', 's'] //f
+
+let counter = (source, needle) => {
+ return source.reduce(function(n, val) {
+    return n + (val === needle);
+	}, 0)
+}*/
+      if (this.dependencyIsPending(wantedValue)) {
+        state = "pending"
+      }
+      if (this.dependencyIsFailing(wantedValue)) {
+        state = "failing"
+      }      
       if (!this.dependencyIsReady(wantedValue)) {
         need.push(wantedValue)
       }
     })
+
     return need.length === 0
   }
 
@@ -64,4 +88,11 @@ export default class DependencyManager extends Observable {
     return this.readyDependencies.find((v) => (v === ref))
   }
 
+  dependencyIsPending (ref) {
+    return this.pendingDependencies.find((v) => (v === ref))
+  }
+
+  dependencyIsFailed (ref) {
+    return this.failedDependencies.find((v) => (v === ref))
+  }  
 }

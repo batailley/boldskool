@@ -12,8 +12,9 @@ export default class DependencyManager extends Observable {
     this.dependenciesDispatchMapper()
   }
 
-  dependenciesListener (dependencies, callbacks, label) {
-    if (this.dependenciesAreReady(dependencies)) {
+  dependenciesListener (dependencies, callback, label) {
+    let state = this.analyseStates(this.getDependenciesStates(dependencies))
+    if (state === 'ready') {
       callback()
     } else {
       this.dependenciesListeners.push({dependencies, callback, label})
@@ -49,39 +50,48 @@ export default class DependencyManager extends Observable {
 
   dispatchDependencyStateChange () {
     this.dependenciesListeners.forEach((dependenciesWaiter, index) => {
-      if (this.dependenciesAreReady(dependenciesWaiter.dependencies)) {
+      let state = this.analyseStates(this.getDependenciesStates(dependenciesWaiter.dependencies))
+      if (state === 'ready') {
         dependenciesWaiter.callback()
         this.dependenciesListeners.splice(index, 1)
-      } else 
+      }
     })
   }
 
-  dependenciesState (wanted) {
-    let state = "";
-    wanted.forEach((wantedValue) => {
-      /*
-let arr1 = ['f', 'p', 's'] //f
-let arr2 = ['s', 's', 's'] //s
-let arr3 = ['p', 's', 's'] //p
-let arr4 = ['f', 's', 's'] //f
+  analyseStates (states) {
+    let state = null
+    if (this.stateCounter('failing', states) > 0) {
+      state = 'failing'
+    } else if (this.stateCounter('pending', states) > 0) {
+      state = 'pending'
+    } else if (this.stateCounter('ready', states) === states.length) {
+      state = 'ready'
+    }
 
-let counter = (source, needle) => {
- return source.reduce(function(n, val) {
-    return n + (val === needle);
-	}, 0)
-}*/
+    return state
+  }
+
+  getDependenciesStates (dependencies) {
+    let states = []
+    dependencies.forEach((wantedValue) => {
       if (this.dependencyIsPending(wantedValue)) {
-        state = "pending"
+        states.push('pending')
       }
       if (this.dependencyIsFailing(wantedValue)) {
-        state = "failing"
-      }      
+        states.push('failing')
+      }
       if (!this.dependencyIsReady(wantedValue)) {
-        need.push(wantedValue)
+        states.push('ready')
       }
     })
 
-    return need.length === 0
+    return states
+  }
+
+  stateCounter (state, source) {
+    return source.reduce((n, val) => {
+      return n + (val === state)
+    }, 0)
   }
 
   dependencyIsReady (ref) {
@@ -92,7 +102,7 @@ let counter = (source, needle) => {
     return this.pendingDependencies.find((v) => (v === ref))
   }
 
-  dependencyIsFailed (ref) {
+  dependencyIsFailing (ref) {
     return this.failedDependencies.find((v) => (v === ref))
-  }  
+  }
 }
